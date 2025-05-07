@@ -1,0 +1,6 @@
+fastapi
+uvicorn[standard] # Includes performance extras like httptools
+pydantic[email]   # For EmailStr validation
+python-dotenv     # Although used to load .env locally, list it if imported
+supabase    # Specify version >= 2.0 for modern API/features
+httpx             # Explicitly list, though often a sub-dependency
