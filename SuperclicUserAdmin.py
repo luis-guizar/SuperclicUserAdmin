@@ -34,20 +34,20 @@ logger.debug("Logger configured successfully.")
 
 
 class UserCreateRequest(BaseModel):
-    nombre_completo: str
+    full_name: str
     email: EmailStr
-    telefono: Optional[str] = None
+    phone: Optional[str] = None
     password: str
     suscriptoruuid: Optional[str] = None
     arrayDerechos: List[int] = []
     avatar_url: Optional[str] = None
     rfc: Optional[str] = None
     status_code: int = 1
-    puesto: Optional[str] = None
-    puestouuid: Optional[str] = None
+    puesto_concepto: Optional[str] = None
+    puesto_uuid: Optional[str] = None
     flag_admin: Optional[bool] = False
-    sucursal_default: Optional[str] = None
-    sucursales: Optional[List[str]] = None
+    sucursal_default_uuid: Optional[str] = None
+    sucursales_uuids: Optional[List[str]] = None
 
 
     # Using Pydantic v2 validator style
@@ -63,21 +63,21 @@ class UserCreateRequest(BaseModel):
 
 class ProfileUpdateRequest(BaseModel):
     user_id: str
-    nombre_completo: str
+    full_name: str
     email: EmailStr
-    telefono: Optional[str] = None
+    phone: Optional[str] = None
     suscriptoruuid: Optional[str] = None
     arrayDerechos: List[int] = [] 
     avatar_url: Optional[str] = None
     rfc: Optional[str] = None
     status_code: int = 1
-    puesto: Optional[str] = None
-    puestouuid: Optional[str] = None
+    puesto_concepto: Optional[str] = None
+    puesto_uuid: Optional[str] = None
     flag_admin: Optional[bool] = False
-    sucursal_default: Optional[str] = None
-    sucursales: Optional[List[str]] = None
+    sucursal_default_uuid: Optional[str] = None
+    sucursales_uuids: Optional[List[str]] = None
 
-    @field_validator("suscriptoruuid", "puestouuid", mode="before")
+    @field_validator("suscriptoruuid", "puesto_uuid", mode="before")
     @classmethod
     def empty_str_to_none(cls, v: Any) -> Optional[str]:
         """Convert empty strings for UUID fields to None."""
@@ -290,18 +290,18 @@ async def create_user(user_data: UserCreateRequest, supabase: Client = Depends(g
         # TODO: Review if all these fields are necessary in user_metadata
         # Keep metadata minimal if possible, rely on the 'profiles' table for profile data.
         user_metadata_payload = {
-            "nombre": user_data.nombre_completo,
+            "nombre": user_data.full_name,
             "email": user_data.email,
-            "telefono": user_data.telefono,
+            "phone": user_data.phone,
             "suscriptoruuid": user_data.suscriptoruuid,
             "arrayDerechos": user_data.arrayDerechos,
             "avatar_url": user_data.avatar_url, 
             "rfc": user_data.rfc,
-            "puesto": user_data.puesto,
-            "puestouuid": user_data.puestouuid,
+            "puesto_concepto": user_data.puesto_concepto,
+            "puesto_uuid": user_data.puesto_uuid,
             "flag_admin": user_data.flag_admin,
-            "sucursal_default": user_data.sucursal_default,
-            "sucursales": user_data.sucursales,
+            "sucursal_default_uuid": user_data.sucursal_default_uuid,
+            "sucursales_uuids": user_data.sucursales_uuids,
         }
 
         auth_response = supabase.auth.admin.create_user(
@@ -310,7 +310,7 @@ async def create_user(user_data: UserCreateRequest, supabase: Client = Depends(g
                 "password": user_data.password,
                 "user_metadata": user_metadata_payload,
                 "email_confirm": True, 
-                "phone": user_data.telefono,
+                "phone": user_data.phone,
                 "phone_confirm": True
             }
         )
@@ -339,8 +339,8 @@ async def create_user(user_data: UserCreateRequest, supabase: Client = Depends(g
         # Ensure default values from model are included if not provided
         profile_data.setdefault("status_code", user_data.status_code)
         profile_data.setdefault("flag_admin", user_data.flag_admin)
-        profile_data.setdefault("sucursal_default", user_data.sucursal_default)
-        profile_data.setdefault("sucursales", user_data.sucursales)
+        profile_data.setdefault("sucursal_default_uuid", user_data.sucursal_default_uuid)
+        profile_data.setdefault("sucursales_uuids", user_data.sucursales_uuids)
         profile_data.setdefault("arrayDerechos", user_data.arrayDerechos)
 
         logger.info(f"Creating profile in 'profiles' for user ID: {user_id}")
